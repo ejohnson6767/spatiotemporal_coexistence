@@ -4,6 +4,17 @@ library(shades)
 library(latex2exp)
 library(extrafont)
 
+
+# setup fonts -------------------------------------------------------------
+
+# # old version of remotes (a dependency) is required to use extrafont
+# library(remotes)
+# remotes::install_version("Rttf2pt1", version = "1.3.8")
+
+# chang path as needed
+font_import(paths = "C:/Windows/my_fonts/", recursive = FALSE)
+loadfonts(device="win")  #Register fonts for Windows bitmap output
+
 # simulation step function ------------------------------------------------
 
 step <- function(n_mat, time) {
@@ -285,8 +296,8 @@ d_vec <- c(0.11, 0.1, 0.1)
 dispersal_vec <- c(0.9,0.9,0.9)
 d_mat <- sapply(seq_len(num_spp), function(i) rep(d_vec[i], K))
 dispersal_mat <- sapply(seq_len(num_spp), function(i) rep(dispersal_vec[i], K))
-record_time <- 1000
-burn_in <- 200
+record_time <- 5000
+burn_in <- 500
 total_time <- burn_in + record_time
 
 env_sd <- 0.3
@@ -429,7 +440,7 @@ labels_inv_small_noise <- rev(c(parse(text = TeX('$ \\approx E_{t} \\lbrack \\lo
 
 #text = TeX('$E_{t} \\lbrack \\log ( \\widetilde{\\lambda_{i}} ) \\rbrack$')
 #text = TeX('$r_i$')
-labels_inv_exact <- rev(c(parse(text = TeX('$E_{t} \\lbrack \\log ( \\widetilde{\\lambda_{i}} ) \\rbrack$')),
+labels_inv_exact <- c(parse(text = TeX('$E_{t} \\lbrack \\log ( \\widetilde{\\lambda_{i}} ) \\rbrack$')),
                           "",
                           parse(text = TeX("$\\Delta E_i^{(e)}$")),
                           parse(text = TeX("$\\Delta E_{i,A}^{(e)}$")),
@@ -450,21 +461,18 @@ labels_inv_exact <- rev(c(parse(text = TeX('$E_{t} \\lbrack \\log ( \\widetilde{
                           parse(text = TeX("$\\Delta I_{i,T}^{(e)}$")),
                           parse(text = TeX("$\\Delta I_{i,R}^{(e)}$")),
                           "",
-                          parse(text = TeX('$\\Delta \\kappa_i^{(e)}$'))))
+                          parse(text = TeX('$\\Delta \\kappa_i^{(e)}$')))
 
-#font_import(paths = "C:/Windows/my_fonts/", recursive = FALSE)
-loadfonts(device="win")       #Register fonts for Windows bitmap output
-#loadfonts()
-#fonts()      
+   
 # plot exact coexistence mechanisms
 inv_gr_decomp %>% 
   ggplot(aes(names, exact_values, fill = col_groups)) +
   geom_col(show.legend = FALSE) + 
   scale_fill_manual(values = pal) +
   coord_flip() + 
-  scale_x_discrete( limits = limits_inv,
+  scale_x_discrete( limits = rev(factor(limits_inv)),
                     breaks = breaks_inv,
-                    labels = labels_inv_exact) + 
+                    labels = labels_inv_exact)+ 
   theme_classic() +
   xlab("Exact coexistence mechanism") + 
   ylab("Growth rate") + 
@@ -479,26 +487,27 @@ inv_gr_decomp %>%
   geom_col(show.legend = FALSE) + 
   scale_fill_manual(values = pal) +
   coord_flip() + 
-  scale_x_discrete( limits = limits_inv,
+  scale_x_discrete( limits = rev(factor(limits_inv)),
                     breaks = breaks_inv,
-                    labels = labels_inv_small_noise) + 
+                    labels = labels_inv_small_noise)+ 
+  theme_classic() +
   xlab("small-noise coexistence mechanism") + 
-  ylab("growth rate") + 
-  theme( axis.text.x = element_text(size= 16), axis.text.y = element_text(size= 16),
-         axis.title.x = element_text(size= 16), axis.title.y = element_text(size= 16)) +
+  ylab("Growth rate") + 
+  theme( axis.text.x = element_text(size= 24, family="LM Roman 10"), axis.text.y = element_text(size= 18, family="LM Roman 10"),
+         axis.title.x = element_text(size= 24, family="LM Roman 10"), axis.title.y = element_text(size= 24, family="LM Roman 10")) +
   geom_hline(yintercept = 0, lty = 1, lwd = 1)
 
 
 # make figure for paper
-png("lottery_model.png", units="in", width=14, height=10, res=300)
+png("lottery_model.png", units="in", width=14, height=10, res=600)
 inv_gr_decomp %>% 
   ggplot(aes(names, exact_values, fill = col_groups)) +
   geom_col(show.legend = FALSE) + 
   scale_fill_manual(values = pal) +
   coord_flip() + 
-  scale_x_discrete( limits = limits_inv,
+  scale_x_discrete( limits = rev(factor(limits_inv)),
                     breaks = breaks_inv,
-                    labels = labels_inv_exact) + 
+                    labels = labels_inv_exact)+ 
   theme_classic() +
   xlab("Exact coexistence mechanism") + 
   ylab("Growth rate") + 
